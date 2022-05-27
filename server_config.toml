@@ -1,6 +1,6 @@
 [proxy]
 server_addr = "127.0.0.1:7700"
-to_addr = "192.168.192.201:7700"
+to_addr = "134.209.57.254:7700"
 
 [log] # see how to configrution simple-log:https://github.com/baoyachi/simple-log
 path = "./var/log/server_security/server_security.log"
