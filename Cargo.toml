@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 server-security = "0.1.1"
+tokio = "1.18.2"
 
 [[bin]]
 name = "proxy"

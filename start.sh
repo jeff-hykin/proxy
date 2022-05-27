@@ -1,1 +1,1 @@
-./server_security ./config/server_config.toml
+./target/debug/proxy ./server_config.toml
