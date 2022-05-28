@@ -1,27 +1,32 @@
+import { allKeys, ownKeyDescriptions, allKeyDescriptions, } from "https://deno.land/x/good@0.5.14/value.js"
+
 const useLocalPort = 8080
 const forwardTo = "http://localhost:7700/"
 const serverHead = `http://134.209.57.254:${useLocalPort}/`
 console.log(`taking requests to ${useLocalPort} and forwarding them to ${forwardTo}`)
 const server = Deno.listen({ port: useLocalPort })
 
+
 // curl \
 //   -X POST 'http://http://134.209.57.254:8080/indexes/packages/search' \
 //   -H 'Content-Type: application/json' \
 //   --data-binary '{ "q": "ruby" }'
 
-for await (const conn of server) { // for each connection
-    serveHttp(conn)
-}
+;((async ()=>{
+    for await (const conn of server) { // for each connection
+        serveHttp(conn)
+    }
+})())
 
 async function serveHttp(conn) {
     let waiting = false
-    for await (const requestEvent of Deno.serveHttp(conn)) { // for each request
+    for await (const { request, respondWith } of Deno.serveHttp(conn)) { // for each request
         try {
             // 
             // homepage
             // 
-            if (requestEvent.request.url == serverHead) {
-                await requestEvent.respondWith(
+            if (request.url == serverHead) {
+                await respondWith(
                     new Response(`
                         <!DOCTYPE html>
                         <html lang="en">
@@ -382,11 +387,28 @@ async function serveHttp(conn) {
             // database request
             // 
             } else {
-                const result = await fetch(requestEvent.request.url.replace(serverHead, forwardTo), {
-                        ...requestEvent.request,
-                        mode: 'no-cors', // no-cors, *cors, same-origin
-                    })
-                await requestEvent.respondWith(
+                let body
+                try { body = await request.text() } catch (error) {}
+                const result = await fetch(request.url.replace(serverHead, forwardTo), {
+                    ...request,
+                    body,
+                    mode: 'no-cors', // no-cors, *cors, same-origin
+                    method: request.method,
+                    headers: Object.fromEntries(request.headers.entries()),
+                    // {
+                    //     method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    //     mode: 'cors', // no-cors, *cors, same-origin
+                    //     cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                    //     credentials: 'same-origin', // include, *same-origin, omit
+                    //     headers: {
+                    //         'Content-Type': 'application/json' // 'Content-Type': 'application/x-www-form-urlencoded',
+                    //     },
+                    //     redirect: 'follow', // manual, *follow, error
+                    //     referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                    //     body: JSON.stringify(data) // body data type must match "Content-Type" header
+                    // }
+                })
+                await respondWith(
                     result
                 )
             }
