@@ -14,7 +14,27 @@ const server = Deno.listen({ port: useLocalPort })
 
 // curl \
 //   -X GET 'http://134.209.57.254:8080/indexes/packages/settings/ranking-rules'
- 
+
+// curl \
+//   -X POST 'http://134.209.57.254:8080/indexes/packages/settings/ranking-rules' \
+//   -H 'Content-Type: application/json' \
+//   --data-binary '["words","typo","exactness","proximity","attribute","sort"]'
+
+// curl \
+//   -X POST 'http://134.209.57.254:8080/indexes/packages/settings/searchable-attributes' \
+//   -H 'Content-Type: application/json' \
+//   --data-binary '[
+//       "frozen.name"
+//   ]'
+
+// curl \
+//   -X POST 'http://134.209.57.254:8080/indexes/packages/settings/searchable-attributes' \
+//   -H 'Content-Type: application/json' \
+//   --data-binary '[
+//       "frozen.name",
+//       "frozen.shortDescription"
+//   ]'
+
 
 ;((async ()=>{
     for await (const conn of server) { // for each connection
@@ -159,10 +179,10 @@ async function serveHttp(conn) {
                                             b = b.frozen
                                             let reverse = 1
                                             if (a.versionNumberList && b.versionNumberList) {
-                                                console.debug(\`a.versionNumberList is:\`,a.versionNumberList)
-                                                console.debug(\`b.versionNumberList is:\`,b.versionNumberList)
+                                                // console.debug(\`a.versionNumberList is:\`,a.versionNumberList)
+                                                // console.debug(\`b.versionNumberList is:\`,b.versionNumberList)
                                                 const zipped = zip(a.versionNumberList, b.versionNumberList)
-                                                console.debug(\`zipped is:\`,zipped)
+                                                // console.debug(\`zipped is:\`,zipped)
                                                 for (let [aValue, bValue] of zip(a.versionNumberList, b.versionNumberList)) {
                                                     if (aValue-0 !== aValue-0) {
                                                         aValue = -Infinity
