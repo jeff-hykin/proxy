@@ -8,9 +8,13 @@ const server = Deno.listen({ port: useLocalPort })
 
 
 // curl \
-//   -X POST 'http://http://134.209.57.254:8080/indexes/packages/search' \
+//   -X POST 'http://134.209.57.254:8080/indexes/packages/search' \
 //   -H 'Content-Type: application/json' \
 //   --data-binary '{ "q": "ruby" }'
+
+// curl \
+//   -X GET 'http://134.209.57.254:8080/indexes/packages/settings/ranking-rules'
+ 
 
 ;((async ()=>{
     for await (const conn of server) { // for each connection
@@ -387,11 +391,14 @@ async function serveHttp(conn) {
             // database request
             // 
             } else {
+                const useBody = !request.method.match(/GET|HEAD/)
                 let body
-                try { body = await request.text() } catch (error) {}
+                if (useBody) {
+                    try { body = await request.text() } catch (error) {}
+                }
                 const result = await fetch(request.url.replace(serverHead, forwardTo), {
                     ...request,
-                    body,
+                    ...(useBody ? {body} : {}),
                     mode: 'no-cors', // no-cors, *cors, same-origin
                     method: request.method,
                     headers: Object.fromEntries(request.headers.entries()),
