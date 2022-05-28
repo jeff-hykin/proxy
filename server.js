@@ -35,6 +35,8 @@ const server = Deno.listen({ port: useLocalPort })
 //       "frozen.shortDescription"
 //   ]'
 
+// curl \
+//   -X DELETE 'http://134.209.57.254:8080/indexes/packages/settings'
 
 ;((async ()=>{
     for await (const conn of server) { // for each connection
